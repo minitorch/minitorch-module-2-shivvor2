@@ -154,6 +154,120 @@ class MatMul(Function):
             grad_output.f.matrix_multiply(transpose(t1), grad_output),
         )
 
+# Unprovided tensor functions
+# Number of input arguments might be wrong
+
+class EQ(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class LT(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class All(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+    
+class Exp(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class IsClose(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Log(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Mul(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Permute(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+    
+class ReLU(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Sigmoid(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Sum(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+    
+
 
 # Helpers for Constructing tensors
 def zeros(shape: UserShape, backend: TensorBackend = SimpleBackend) -> Tensor:

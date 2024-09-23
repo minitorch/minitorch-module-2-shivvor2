@@ -265,4 +265,5 @@ class Tensor:
 
     # Functions
     # TODO: Implement for Task 2.3.
-    raise NotImplementedError("Need to implement for Task 2.3")
+        return
+    # raise NotImplementedError("Need to implement for Task 2.3")

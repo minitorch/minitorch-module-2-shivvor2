@@ -47,7 +47,9 @@ def index_to_position(index: Index, strides: Strides) -> int:
 
     """
     # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    position = np.sum(np.multiply(index, strides))
+    return position
+    
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -64,7 +66,14 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
 
     """
     # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    # Assume strides s_i assends from left to right (in terms of thj array)
+    ordinal_remainder = ordinal
+    for i in range(len(shape))[::-1]:
+        stride = np.prod(shape[:i])
+        ordinal_quotient, ordinal_remainder = np.divmod(ordinal_remainder, stride)
+        out_index[i] = ordinal_quotient
+        
+        
 
 
 def broadcast_index(
@@ -114,7 +123,7 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
-    "Return a contiguous stride for a shape"
+    """Return a contiguous stride for a shape"""
     layout = [1]
     offset = 1
     for s in reversed(shape):
@@ -158,6 +167,7 @@ class TensorData:
         assert len(self._storage) == self.size
 
     def to_cuda_(self) -> None:  # pragma: no cover
+        """Store the TensorData instance in CUDA memory"""
         if not numba.cuda.is_cuda_array(self._storage):
             self._storage = numba.cuda.to_device(self._storage)
 
@@ -221,6 +231,12 @@ class TensorData:
         self._storage[self.index(key)] = val
 
     def tuple(self) -> Tuple[Storage, Shape, Strides]:
+        """Returns Tuple representation of the TensorData object
+
+        Returns:
+            Tuple[Storage, Shape, Strides]: Tensor Representation of storage, shape and strides
+            
+        """
         return (self._storage, self._shape, self._strides)
 
     def permute(self, *order: int) -> TensorData:
@@ -240,9 +256,14 @@ class TensorData:
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
 
         # TODO: Implement for Task 2.1.
-        raise NotImplementedError("Need to implement for Task 2.1")
+        # Approach: Permute order of strides
+        shape: UserShape = tuple([self._shape[i] for i in order])
+        strides: Strides = tuple([self._strides[i] for i in order])
+        new_Tensor_Data = TensorData(self._storage, shape, strides)
+        return new_Tensor_Data
 
     def to_string(self) -> str:
+        """Generates String representation of current TensorData instance"""
         s = ""
         for index in self.indices():
             l = ""
