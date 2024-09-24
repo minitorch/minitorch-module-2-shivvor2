@@ -98,8 +98,20 @@ def broadcast_index(
 
     """
     # TODO: Implement for Task 2.2.
-    raise NotImplementedError("Need to implement for Task 2.2")
-
+    # No Checking
+    # Assumes shape broadcastable to big_shape
+    # Assumes shapes are 1d
+    small_shape = shape.copy()
+    prepend_count = 0
+    while len(small_shape) < len(big_shape):
+        if _check_shape_match_static(big_shape, small_shape):
+           break
+        small_shape = np.insert(small_shape,0,1)
+        prepend_count += 1
+    
+    
+    out_index = np.maximum(big_index[prepend_count:prepend_count+len(out_index)], shape)
+    return
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     """Broadcast two shapes to create a new union shape.
@@ -119,9 +131,34 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
 
     """
     # TODO: Implement for Task 2.2.
-    raise NotImplementedError("Need to implement for Task 2.2")
+    # Over verbose and not very robust implementation lmao
+    # We do not deal with "funny rotations" i.e. adding dims of len 1 in the middle of the tensor
+    shorter_shape, longer_shape = (shape1, shape2) if len(shape1) <= len(shape2) else (shape2, shape1)
+    
+    while len(shorter_shape) <= len(longer_shape):
+        # Shape match
+        if _check_shape_match_static(longer_shape, shorter_shape):
+            output_shape = []
+            for i in range(len(longer_shape)):
+                dim_len = max(longer_shape[i], shorter_shape[i]) if i < len(shorter_shape) else longer_shape[i]
+                output_shape.append(dim_len)
+            return output_shape
+        else: #shape mismatch
+            shorter_shape = [1] + list(shorter_shape) # Append 1 dimension to the left
+    
+    raise IndexingError(f"Shape: {shape1} cannot be broadcasted to shape: {shape2}")
 
 
+def _check_shape_match_static(big_shape: Union[Shape, UserShape], shape: Union[Shape, UserShape]) -> bool:
+    assert len(big_shape) >= len(shape)
+    
+    # Check if shape mismatch
+    for i in range(len(shape)):
+        if (shape[i] != big_shape[i]) and not (shape[i] == 1 or big_shape[i] == 1):
+            return False
+    
+    return True
+                                                                    
 def strides_from_shape(shape: UserShape) -> UserStrides:
     """Return a contiguous stride for a shape"""
     layout = [1]
@@ -188,9 +225,53 @@ class TensorData:
 
     @staticmethod
     def shape_broadcast(shape_a: UserShape, shape_b: UserShape) -> UserShape:
+        """Broadcast two shapes to create a new union shape.
+
+        Args:
+        ----
+            shape_a : first shape
+            shape_b : second shape
+
+        Returns:
+        -------
+            broadcasted shape
+
+        Raises:
+        ------
+            IndexingError : if cannot broadcast
+
+        """
         return shape_broadcast(shape_a, shape_b)
 
     def index(self, index: Union[int, UserIndex]) -> int:
+        """Map a high-dimensional tensor index to the corresponding index in the underlying 1D array.
+
+        This method converts a user-provided index for a multi-dimensional tensor into the 
+        corresponding index of the underlying 1D array representation. It supports both 
+        single integer indices for 1D tensors and tuple indices for higher-dimensional tensors.
+
+        Args:
+            index (Union[int, UserIndex]): The input index for the high-dimensional tensor.
+                Can be an integer for 1D tensors or a tuple of integers for higher dimensions.
+
+        Returns:
+            int: The corresponding index in the underlying 1D array.
+
+        Raises:
+            IndexingError: If there's a mismatch between the shape of the input index and the tensor's shape.
+            IndexingError: If any part of the index is out of range for the tensor's dimensions.
+            IndexingError: If negative indexing is attempted (currently not supported).
+
+        Notes:
+            - For 0-dimensional tensors, the method treats them as 1-dimensional with a single element.
+            - The method uses `index_to_position` for fast conversion of multi-dimensional indices.
+
+        Example:
+            >>> tensor = Tensor([1, 2, 3, 4], shape=(2, 2))
+            >>> tensor.index((1, 1))
+            3
+            
+        """
         if isinstance(index, int):
             aindex: Index = array([index])
         else:  # if isinstance(index, tuple):
@@ -258,7 +339,7 @@ class TensorData:
         # TODO: Implement for Task 2.1.
         # Approach: Permute order of strides
         shape: UserShape = tuple([self._shape[i] for i in order])
-        strides: Strides = tuple([self._strides[i] for i in order])
+        strides: UserStrides = tuple([self._strides[i] for i in order])
         new_Tensor_Data = TensorData(self._storage, shape, strides)
         return new_Tensor_Data
 

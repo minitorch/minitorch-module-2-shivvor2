@@ -28,8 +28,7 @@ def unwrap_tuple(x):  # type: ignore
 
 
 class ScalarFunction:
-    """
-    A wrapper for a mathematical function that processes and produces
+    """A wrapper for a mathematical function that processes and produces
     Scalar variables.
 
     This is a static class and is never instantiated. We use `class`
