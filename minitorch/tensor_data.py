@@ -98,19 +98,9 @@ def broadcast_index(
 
     """
     # TODO: Implement for Task 2.2.
-    # No Checking
-    # Assumes shape broadcastable to big_shape
-    # Assumes shapes are 1d
-    small_shape = shape.copy()
-    prepend_count = 0
-    while len(small_shape) < len(big_shape):
-        if _check_shape_match_static(big_shape, small_shape):
-           break
-        small_shape = np.insert(small_shape,0,1)
-        prepend_count += 1
-    
-    
-    out_index = np.maximum(big_index[prepend_count:prepend_count+len(out_index)], shape)
+    diff = len(big_shape) - len(shape)
+    for i, d in enumerate(shape):
+        out_index[i] = 0 if d == 1 else big_index[i + diff]
     return
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
@@ -133,31 +123,24 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     # TODO: Implement for Task 2.2.
     # Over verbose and not very robust implementation lmao
     # We do not deal with "funny rotations" i.e. adding dims of len 1 in the middle of the tensor
+    # How to check for "implicit appending dimensions of 1 to the right"
     shorter_shape, longer_shape = (shape1, shape2) if len(shape1) <= len(shape2) else (shape2, shape1)
+    output_shape = []
+    diff = len(longer_shape) - len(shorter_shape)
     
-    while len(shorter_shape) <= len(longer_shape):
-        # Shape match
-        if _check_shape_match_static(longer_shape, shorter_shape):
-            output_shape = []
-            for i in range(len(longer_shape)):
-                dim_len = max(longer_shape[i], shorter_shape[i]) if i < len(shorter_shape) else longer_shape[i]
-                output_shape.append(dim_len)
-            return output_shape
-        else: #shape mismatch
-            shorter_shape = [1] + list(shorter_shape) # Append 1 dimension to the left
-    
-    raise IndexingError(f"Shape: {shape1} cannot be broadcasted to shape: {shape2}")
+    for i in range(len(longer_shape)):
+        if i < diff:
+            output_shape.append(longer_shape[i])
+            continue
+        # Catch mismatch
+        if (shorter_shape[i-diff] == longer_shape[i]) or (shorter_shape[i-diff] == 1) or (longer_shape[i] == 1):
+            output_shape.append(max(longer_shape[i], shorter_shape[i-diff]))
+            continue
+        raise IndexingError(f"Cannot broadcast, shapes {shape1} and {shape2} are incompatible")
+    return tuple(output_shape)
+        
 
 
-def _check_shape_match_static(big_shape: Union[Shape, UserShape], shape: Union[Shape, UserShape]) -> bool:
-    assert len(big_shape) >= len(shape)
-    
-    # Check if shape mismatch
-    for i in range(len(shape)):
-        if (shape[i] != big_shape[i]) and not (shape[i] == 1 or big_shape[i] == 1):
-            return False
-    
-    return True
                                                                     
 def strides_from_shape(shape: UserShape) -> UserStrides:
     """Return a contiguous stride for a shape"""

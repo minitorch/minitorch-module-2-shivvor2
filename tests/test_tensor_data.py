@@ -105,6 +105,16 @@ def test_shape_broadcast() -> None:
 
     c = minitorch.shape_broadcast((1, 5, 5), (5, 5))
     assert c == (1, 5, 5)
+    
+    # c = minitorch.shape_broadcast((1, 5, 5, 1, 1), (5, 5))
+    # assert c == (1, 5, 5, 1, 1)
+    
+    # c = minitorch.shape_broadcast((1,3), (2,1))
+    # assert c == (2,3)
+    
+    # Ignore this
+    # c = minitorch.shape_broadcast((1,3), (2,))
+    # assert c == (2,3)
 
     c = minitorch.shape_broadcast((5, 1, 5, 1), (1, 5, 1, 5))
     assert c == (5, 5, 5, 5)
