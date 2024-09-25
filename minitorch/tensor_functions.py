@@ -154,7 +154,7 @@ class MatMul(Function):
             grad_output.f.matrix_multiply(transpose(t1), grad_output),
         )
 
-# Unprovided tensor functions
+# Assignment tensor functions
 # Number of input arguments might be wrong
 
 class EQ(Function):

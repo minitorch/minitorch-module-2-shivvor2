@@ -267,3 +267,27 @@ class Tensor:
     # TODO: Implement for Task 2.3.
         return
     # raise NotImplementedError("Need to implement for Task 2.3")
+    @property
+    def shape(self) -> Shape:
+        """Returns the shape of the tensor
+
+        Returns:
+            Shape: Shape of the tensor, it is a Sequence
+            
+        """
+        return self._tensor._shape
+    
+    @property
+    def size(self) -> int:
+        """Returns the total size of the tensor
+
+        Returns:
+            int: Number of floats "stored" in this Tensor instance
+            
+        """
+        return self._tensor.size
+    
+    @property
+    def dims(self) -> int:
+        """Returns the number of dimensions (int)  of the tensor"""
+        return self._tensor.dims

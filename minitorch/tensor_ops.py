@@ -264,7 +264,14 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # assert shape_broadcast(in_shape, out_shape) is not None
+        # for out_index in product(*(range(axis) for axis in out_shape)):
+        for i in range(len(out)):
+            out_index = Shape(len(out_shape)*[-1])
+            to_index(i, out_shape, out_index) # Outindex
+            in_index = Shape(len(in_shape)*[-1])
+            broadcast_index(out_index, out_shape, in_shape, in_index) # in_index is now correct
+            out[index_to_position(out_index, out_strides)] = fn(in_storage[index_to_position(in_index, in_strides)])
 
     return _map
 
@@ -311,7 +318,14 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        for i in range(len(out)):
+            out_index = Shape(len(out_shape)*[-1])
+            to_index(i, out_shape, out_index)
+            a_index = Shape(len(a_shape)*[-1])
+            b_index = Shape(len(b_shape)*[-1])
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+            out[index_to_position(out_index, out_strides)] = fn(a_storage[index_to_position(a_index, a_strides)],b_storage[index_to_position(b_index, b_strides)])
 
     return _zip
 
@@ -333,7 +347,8 @@ def tensor_reduce(
         Tensor reduce function.
 
     """
-
+    # ufunc = np.frompyfunc(fn, 2, 1)
+    
     def _reduce(
         out: Storage,
         out_shape: Shape,
@@ -344,7 +359,22 @@ def tensor_reduce(
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Can't use the reduce method from numpy directly because storage is not contageous
+        # a_storage_reduced = ufunc.reduce(a_storage, axis = reduce_dim)
+    
+        
+        # "Proper" implementation
+        for i in range(len(out)):
+            out_index = Shape(len(out_shape)*[-1])
+            to_index(i, out_shape, out_index) # out_index is correct
+            # Get 1d array of unreduced dimension, with all other dims specified
+            a_one_dim = []
+            for i in range(a_shape[reduce_dim]):
+                a_index = out_index
+                a_index[reduce_dim] = i
+                a_one_dim.append(a_storage[index_to_position(a_index, a_strides)])
+            out[index_to_position(out_index, out_strides)] = operators.reduce(a_one_dim, fn)
+                
 
     return _reduce
 

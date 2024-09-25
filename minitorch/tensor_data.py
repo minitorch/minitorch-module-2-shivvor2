@@ -139,8 +139,6 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
         raise IndexingError(f"Cannot broadcast, shapes {shape1} and {shape2} are incompatible")
     return tuple(output_shape)
         
-
-
                                                                     
 def strides_from_shape(shape: UserShape) -> UserStrides:
     """Return a contiguous stride for a shape"""
