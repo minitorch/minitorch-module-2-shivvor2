@@ -154,6 +154,162 @@ class MatMul(Function):
             grad_output.f.matrix_multiply(transpose(t1), grad_output),
         )
 
+# Assignment tensor functions
+# Number of input arguments might be wrong
+
+# Maps
+
+class Sigmoid(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor) -> Tensor:
+        ctx.save_for_backward(t1)
+        return t1.f.sigmoid_map(t1)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
+        """Matrix Multiply backward (module 3)"""
+        (t1,) = ctx.saved_values
+        raise NotImplementedError("Add the operators in tensor.py first")
+        # f = grad_output.f
+        # sig = f.sigmoid_map(t1)
+        # one_minus_sig = f
+        # return f.mul_zip(f.sigmoid_map(t1), (ones(grad_output._tensor.shape, grad_output.backend)))
+
+class ReLU(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        ctx.save_for_backward(t1)
+        return t1.f.relu_map(t1)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
+        """Matrix Multiply backward (module 3)"""
+        (t1,) = ctx.saved_values
+        return grad_output.f.relu_back_zip(t1, grad_output)
+
+class Exp(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor) -> Tensor:
+        """Perform exponential function elementwise"""
+        ctx.save_for_backward(t1)
+        return t1.f.exp_map(t1)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
+        """Matrix Multiply backward (module 3)"""
+        (t1,) = ctx.saved_values
+        backend = grad_output.f
+        mul = backend.mul_zip
+        return mul(mul(t1, backend.exp_map(t1)), grad_output)
+        
+   
+# Need to change arguments 
+class Permute(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+class Log(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor) -> Tensor:
+        ctx.save_for_backward(t1)
+        return t1.f.log_map(t1)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        (t1,) = ctx.saved_values
+        grad_output.f.log_back_zip(t1, grad_output)
+# Zips
+
+class Mul(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        ctx.save_for_backward(t1, t2)
+        return t1.f.mul_zip(t1, t2)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        t1, t2 = ctx.saved_values
+        return grad_output.f.mul_zip(t2, grad_output), grad_output.f.mul_zip(t1, grad_output)
+
+class LT(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        r"""Computes $\text{Input} \leq \text{Input} $ element wise
+
+        Args:
+            ctx (Context): Context instance to store values for back prop
+            t1 (Tensor): Tensor object to be compared
+            t2 (Tensor): Tensor object to be compared
+
+        Returns:
+            Tensor: For each element e_i, True if t1[i] > t2[i] and false otherwise
+            
+        """
+        return t1.f.eq_zip(t1, t2)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        return zeros(grad_output._tensor.shape, grad_output.backend), zeros(grad_output._tensor.shape, grad_output.backend)
+
+class EQ(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        """Return element-wise equality
+        
+        The second argument can be a number or a tensor whose shape is broadcastable with the first argument
+        """
+        # No need to store values
+        # ctx.save_for_backward(t1, t2)
+        return t1.f.eq_zip(t1, t2)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        return zeros(grad_output._tensor.shape, grad_output.backend), zeros(grad_output._tensor.shape, grad_output.backend)
+
+class IsClose(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, t2: Tensor) -> Tensor:
+        return t1.f.is_close_zip(t1, t2)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+
+# Reduces
+
+
+class All(Function):
+    @staticmethod
+    def forward(ctx: Context, a: Tensor) -> Tensor:
+        raise NotImplementedError("Need to implement for Task 2.2")
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+# I don't know
+
+
+class Sum(Function):
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, axis: int = 0) -> Tensor:
+        ctx.save_for_backward(t1)
+        return t1.f.add_reduce(t1, axis)
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        """Matrix Multiply backward (module 3)"""
+        raise NotImplementedError("Need to implement for Task 2.4?")
+    
+
 
 # Helpers for Constructing tensors
 def zeros(shape: UserShape, backend: TensorBackend = SimpleBackend) -> Tensor:
@@ -173,6 +329,22 @@ def zeros(shape: UserShape, backend: TensorBackend = SimpleBackend) -> Tensor:
         [0.0] * int(operators.prod(shape)), shape, backend=backend
     )
 
+def ones(shape: UserShape, backend: TensorBackend = SimpleBackend) -> Tensor:
+    """Produce a tensor of size `shape` filled with scalar value 1.
+
+    Args:
+    ----
+        shape : shape of tensor
+        backend : tensor backend
+
+    Returns:
+    -------
+        new tensor
+
+    """
+    return minitorch.Tensor.make(
+        [1.0] * int(operators.prod(shape)), shape, backend=backend
+    )
 
 def rand(
     shape: UserShape,
