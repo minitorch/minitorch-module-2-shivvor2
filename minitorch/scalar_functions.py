@@ -179,7 +179,7 @@ class ReLU(ScalarFunction):
 
 
 class Exp(ScalarFunction):
-    "Exp function"
+    """Exp function"""
 
     @staticmethod
     def forward(ctx: Context, a: float) -> float:
